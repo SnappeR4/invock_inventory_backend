@@ -2,7 +2,8 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const morgan = require('morgan');
-const colors = require('colors'); // optional for colored console logs
+const colors = require('colors');
+const path = require('path');  
 
 // Load env vars
 dotenv.config();
@@ -15,6 +16,7 @@ connectDB();
 const authRoutes = require('./routes/authRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 // Middleware imports
 const { errorHandler } = require('./middlewares/errorMiddleware');
@@ -27,6 +29,13 @@ app.use(express.json());
 // Enable CORS
 app.use(cors());
 
+// Set view engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// Serve static files (for Tailwind CSS if we use CDN we don't need this, but for custom assets)
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Dev logging middleware
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -36,7 +45,7 @@ if (process.env.NODE_ENV === 'development') {
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/inventory', inventoryRoutes);
-
+app.use('/admin', adminRoutes);
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ success: true, message: 'API is running' });

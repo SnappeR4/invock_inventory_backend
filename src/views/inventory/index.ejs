@@ -1,0 +1,195 @@
+<%- include('../layouts/main', { title, currentPage }) %>
+
+<div class="sm:flex sm:items-center sm:justify-between mb-6">
+  <h2 class="text-2xl font-bold text-gray-900">Inventory Items</h2>
+  <button onclick="openModal('createItemModal')" class="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">
+    <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+    </svg>
+    Add Item
+  </button>
+</div>
+
+<!-- Flash Messages -->
+<% if (typeof query !== 'undefined') { %>
+  <% if (query.success) { %>
+    <div class="rounded-md bg-green-50 p-4 mb-4"><p class="text-sm text-green-800"><%= query.success %></p></div>
+  <% } %>
+  <% if (query.error) { %>
+    <div class="rounded-md bg-red-50 p-4 mb-4"><p class="text-sm text-red-800"><%= query.error %></p></div>
+  <% } %>
+<% } %>
+
+<!-- Filters -->
+<form method="GET" action="/admin/inventory" class="mb-6 flex flex-wrap gap-4 items-end">
+  <div>
+    <label class="block text-sm font-medium text-gray-700">Search</label>
+    <input type="text" name="search" value="<%= filters.search %>" placeholder="Search by name or description" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+  </div>
+  <div>
+    <label class="block text-sm font-medium text-gray-700">Category</label>
+    <select name="category" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+      <option value="">All Categories</option>
+      <% categories.forEach(cat => { %>
+        <option value="<%= cat._id %>" <%= filters.category === cat._id.toString() ? 'selected' : '' %>><%= cat.name %></option>
+      <% }) %>
+    </select>
+  </div>
+  <div>
+    <button type="submit" class="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Apply Filters</button>
+    <a href="/admin/inventory" class="ml-2 px-4 py-2 text-sm text-gray-500 hover:text-gray-700">Clear</a>
+  </div>
+</form>
+
+<!-- Inventory Table -->
+<div class="flex flex-col">
+  <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+    <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+      <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% items.forEach(item => { %>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><%= item.name %></td>
+                <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate"><%= item.description || '-' %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">$<%= item.price.toFixed(2) %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= item.category ? item.category.name : 'N/A' %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <button onclick="openModal('editItemModal-<%= item._id %>')" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
+                  <form action="/admin/inventory/<%= item._id %>/delete" method="POST" class="inline" onsubmit="event.preventDefault(); confirmDelete(this);">
+                    <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+            <% if (items.length === 0) { %>
+              <tr>
+                <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">No items found</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Pagination -->
+<% if (pagination.pages > 1) { %>
+<div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-4">
+  <div class="flex-1 flex justify-between sm:hidden">
+    <% if (pagination.page > 1) { %>
+      <a href="?page=<%= pagination.page - 1 %>&search=<%= filters.search %>&category=<%= filters.category %>" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Previous</a>
+    <% } else { %>
+      <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-300 bg-white">Previous</span>
+    <% } %>
+    <% if (pagination.page < pagination.pages) { %>
+      <a href="?page=<%= pagination.page + 1 %>&search=<%= filters.search %>&category=<%= filters.category %>" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Next</a>
+    <% } else { %>
+      <span class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-300 bg-white">Next</span>
+    <% } %>
+  </div>
+  <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+    <div>
+      <p class="text-sm text-gray-700">
+        Showing <span class="font-medium"><%= (pagination.page - 1) * pagination.limit + 1 %></span> to 
+        <span class="font-medium"><%= Math.min(pagination.page * pagination.limit, pagination.total) %></span> of 
+        <span class="font-medium"><%= pagination.total %></span> results
+      </p>
+    </div>
+    <div>
+      <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+        <% if (pagination.page > 1) { %>
+          <a href="?page=<%= pagination.page - 1 %>&search=<%= filters.search %>&category=<%= filters.category %>" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Prev</a>
+        <% } %>
+        <% for (let i = Math.max(1, pagination.page - 2); i <= Math.min(pagination.pages, pagination.page + 2); i++) { %>
+          <a href="?page=<%= i %>&search=<%= filters.search %>&category=<%= filters.category %>" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium <%= i === pagination.page ? 'text-indigo-600 bg-indigo-50' : 'text-gray-700 hover:bg-gray-50' %>"><%= i %></a>
+        <% } %>
+        <% if (pagination.page < pagination.pages) { %>
+          <a href="?page=<%= pagination.page + 1 %>&search=<%= filters.search %>&category=<%= filters.category %>" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Next</a>
+        <% } %>
+      </nav>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<!-- Create Item Modal -->
+<div id="createItemModal" class="modal fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden" style="z-index: 50;">
+  <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">Add Inventory Item</h3>
+    <form action="/admin/inventory" method="POST">
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Item Name</label>
+        <input type="text" name="name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Description</label>
+        <textarea name="description" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"></textarea>
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Price</label>
+        <input type="number" name="price" step="0.01" min="0" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Category</label>
+        <select name="category" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+          <option value="">Select a category</option>
+          <% categories.forEach(cat => { %>
+            <option value="<%= cat._id %>"><%= cat.name %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="flex justify-end space-x-3">
+        <button type="button" onclick="closeModal('createItemModal')" class="px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
+        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700">Create</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Item Modals -->
+<% items.forEach(item => { %>
+<div id="editItemModal-<%= item._id %>" class="modal fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden" style="z-index: 50;">
+  <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">Edit Inventory Item</h3>
+    <form action="/admin/inventory/<%= item._id %>/update" method="POST">
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Item Name</label>
+        <input type="text" name="name" value="<%= item.name %>" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Description</label>
+        <textarea name="description" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"><%= item.description || '' %></textarea>
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Price</label>
+        <input type="number" name="price" step="0.01" min="0" value="<%= item.price %>" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700">Category</label>
+        <select name="category" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+          <% categories.forEach(cat => { %>
+            <option value="<%= cat._id %>" <%= item.category && item.category._id.toString() === cat._id.toString() ? 'selected' : '' %>><%= cat.name %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="flex justify-end space-x-3">
+        <button type="button" onclick="closeModal('editItemModal-<%= item._id %>')" class="px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
+        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700">Update</button>
+      </div>
+    </form>
+  </div>
+</div>
+<% }) %>
+
+<%- include('../partials/footer') %>
