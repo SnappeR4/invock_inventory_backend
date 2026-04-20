@@ -6,11 +6,11 @@ const {
   getItemById,
   updateItem,
   deleteItem,
-} = require('../controllers/inventoryController');
-const { protect } = require('../middlewares/authMiddleware');
-const { validateInventoryItem } = require('../middlewares/validationMiddleware');
+} = require('../../controllers/inventoryController');
+const { protect } = require('../../middlewares/authMiddleware');
+const { validateInventoryItem } = require('../../middlewares/validationMiddleware');
 
-router.use(protect); // All inventory routes require authentication
+router.use(protect);
 
 router.route('/')
   .post(validateInventoryItem, createItem)

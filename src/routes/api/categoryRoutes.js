@@ -4,11 +4,11 @@ const {
   createCategory,
   getCategories,
   deleteCategory,
-} = require('../controllers/categoryController');
-const { protect } = require('../middlewares/authMiddleware');
-const { validateCategory } = require('../middlewares/validationMiddleware');
+} = require('../../controllers/categoryController');
+const { protect } = require('../../middlewares/authMiddleware');
+const { validateCategory } = require('../../middlewares/validationMiddleware');
 
-router.use(protect); // All category routes require authentication
+router.use(protect);
 
 router.route('/')
   .post(validateCategory, createCategory)

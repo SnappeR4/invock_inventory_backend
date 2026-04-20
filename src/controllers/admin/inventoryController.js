@@ -31,6 +31,7 @@ exports.getInventory = async (req, res, next) => {
       currentPage: 'inventory',
       items,
       categories,
+      user: req.user,
       pagination: {
         page,
         limit,

@@ -4,6 +4,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const colors = require('colors');
 const path = require('path');  
+const cookieParser = require('cookie-parser');
 
 // Load env vars
 dotenv.config();
@@ -12,11 +13,8 @@ dotenv.config();
 const connectDB = require('./config/db');
 connectDB();
 
-// Route files
-const authRoutes = require('./routes/authRoutes');
-const categoryRoutes = require('./routes/categoryRoutes');
-const inventoryRoutes = require('./routes/inventoryRoutes');
-const adminRoutes = require('./routes/adminRoutes');
+// Import the single routes index
+const routes = require('./routes');
 
 // Middleware imports
 const { errorHandler } = require('./middlewares/errorMiddleware');
@@ -25,7 +23,8 @@ const app = express();
 
 // Body parser
 app.use(express.json());
-
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 // Enable CORS
 app.use(cors());
 
@@ -42,10 +41,8 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Mount routers
-app.use('/api/auth', authRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/inventory', inventoryRoutes);
-app.use('/admin', adminRoutes);
+app.use('/', routes);
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ success: true, message: 'API is running' });

@@ -8,6 +8,7 @@ exports.getCategories = async (req, res, next) => {
     res.render('categories/index', {
       title: 'Categories',
       currentPage: 'categories',
+      user: req.user,
       categories,
     });
   } catch (error) {

@@ -10,6 +10,7 @@ exports.getUsers = async (req, res, next) => {
       title: 'Users',
       currentPage: 'users',
       users,
+      user: req.user,
       messages: req.flash?.() || {}, // if you use flash, else ignore
     });
   } catch (error) {

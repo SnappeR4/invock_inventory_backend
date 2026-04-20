@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | Inventory Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-gray-50">
+  <%- include('../partials/header') %>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold text-gray-900">Welcome back, <%= user.name %>!</h2>
+      <p class="text-gray-600 mt-1">Here's an overview of your inventory system.</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <!-- Users Card -->
+      <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200 hover:shadow-lg transition-shadow">
+        <a href="/admin/users" class="block p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
+              <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+              </svg>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Total Users</dt>
+                <dd class="text-3xl font-semibold text-gray-900"><%= counts.users %></dd>
+              </dl>
+            </div>
+          </div>
+          <div class="mt-4 text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+            Manage users →
+          </div>
+        </a>
+      </div>
+
+      <!-- Categories Card -->
+      <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200 hover:shadow-lg transition-shadow">
+        <a href="/admin/categories" class="block p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
+              <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l5 5a2 2 0 01.586 1.414V19a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z"></path>
+              </svg>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Total Categories</dt>
+                <dd class="text-3xl font-semibold text-gray-900"><%= counts.categories %></dd>
+              </dl>
+            </div>
+          </div>
+          <div class="mt-4 text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+            Manage categories →
+          </div>
+        </a>
+      </div>
+
+      <!-- Inventory Items Card -->
+      <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200 hover:shadow-lg transition-shadow">
+        <a href="/admin/inventory" class="block p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 bg-purple-100 rounded-md p-3">
+              <svg class="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+              </svg>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Total Items</dt>
+                <dd class="text-3xl font-semibold text-gray-900"><%= counts.items %></dd>
+              </dl>
+            </div>
+          </div>
+          <div class="mt-4 text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+            Manage inventory →
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Include modals (they need to be defined or omitted) -->
+  <script>
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+    function confirmDelete(form) {
+      if (confirm('Are you sure?')) form.submit();
+    }
+    window.onclick = function(event) {
+      if (event.target.classList.contains('modal')) {
+        event.target.classList.add('hidden');
+      }
+    }
+  </script>
+</body>
+</html>
