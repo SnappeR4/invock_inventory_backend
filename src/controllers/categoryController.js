@@ -42,6 +42,45 @@ const getCategories = async (req, res, next) => {
   }
 };
 
+// @desc    Update a category
+// @route   PUT /api/categories/:id
+// @access  Private
+const updateCategory = async (req, res, next) => {
+  try {
+    const { name } = req.body;
+
+    const category = await Category.findById(req.params.id);
+    if (!category) {
+      return res.status(404).json({
+        success: false,
+        message: 'Category not found',
+      });
+    }
+
+    // Check if new name already exists (excluding current category)
+    const existingCategory = await Category.findOne({ 
+      name, 
+      _id: { $ne: req.params.id } 
+    });
+    if (existingCategory) {
+      return res.status(400).json({
+        success: false,
+        message: 'Category with this name already exists',
+      });
+    }
+
+    category.name = name;
+    await category.save();
+
+    res.json({
+      success: true,
+      data: category,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Delete a category
 // @route   DELETE /api/categories/:id
 // @access  Private
@@ -79,5 +118,6 @@ const deleteCategory = async (req, res, next) => {
 module.exports = {
   createCategory,
   getCategories,
-  deleteCategory,
+  updateCategory,
+  deleteCategory
 };
