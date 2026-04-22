@@ -50,7 +50,10 @@ const getItems = async (req, res, next) => {
 
     // Text search
     if (search) {
-      query.$text = { $search: search };
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+      ];
     }
 
     // Category filter
